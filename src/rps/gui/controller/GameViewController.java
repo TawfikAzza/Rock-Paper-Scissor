@@ -21,7 +21,6 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  *
@@ -100,9 +99,6 @@ public class GameViewController implements Initializable {
 
     private void playGame() {
         ge.playRound(playerMove);
-       /* AtomicReference<Result> result = null;
-        ge.getGameState().getHistoricResults().forEach((result1)-> {
-            result.set(result1);});*/
         Result result = null;
         int aiWinNumber=0;
         int humanWinNumber=0;
