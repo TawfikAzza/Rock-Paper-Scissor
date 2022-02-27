@@ -1,0 +1,19 @@
+#btnScissor{
+    -fx-background-image: url(../images/Scissor.png);
+    -fx-background-repeat: stretch;
+    -fx-background-size: 75px,75px;
+    -fx-background-position: center;
+
+}
+#btnPaper{
+    -fx-background-image: url(../images/Paper.png);
+    -fx-background-repeat: stretch;
+    -fx-background-size: 75px,75px;
+    -fx-background-position: center;
+}
+#btnRock{
+    -fx-background-image: url(../images/Rock.png);
+    -fx-background-repeat: stretch;
+    -fx-background-size: 75px,75px;
+    -fx-background-position: center;
+}
