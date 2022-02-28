@@ -1,19 +1,21 @@
 #btnScissor{
     -fx-background-image: url(../images/Scissor.png);
     -fx-background-repeat: stretch;
-    -fx-background-size: 75px,75px;
+    -fx-background-size: 125px,125px;
     -fx-background-position: center;
-
+    -fx-background-radius: 100;
 }
 #btnPaper{
     -fx-background-image: url(../images/Paper.png);
     -fx-background-repeat: stretch;
-    -fx-background-size: 75px,75px;
+    -fx-background-size: 125px,125px;
     -fx-background-position: center;
+    -fx-background-radius: 100;
 }
 #btnRock{
     -fx-background-image: url(../images/Rock.png);
     -fx-background-repeat: stretch;
-    -fx-background-size: 75px,75px;
+    -fx-background-size: 125px,125px;
     -fx-background-position: center;
+    -fx-background-radius: 100;
 }

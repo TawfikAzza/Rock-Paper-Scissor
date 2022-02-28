@@ -47,6 +47,29 @@ public class Player implements IPlayer {
      */
     @Override
     public Move doMove(IGameState state) {
+        /**
+         * In this Method, which I am still working on and putting everything in.
+         * meaning I didn't refactor a thing about it,so it can looks messy at first (and second) glance.
+         * I retrieve the datas I judge necessary for the AI to do its job.
+         * After some researchs, the top Rock Paper Scissor seems to all acknowledge the fact that
+         * Randomness is the deciding factor between win and loss in the game of Rock Paper Scissor.
+         * However, I think we can add a little thinking to the randomness, by adding into it a
+         * sort of pattern recognition in the moves the human player makes throughout the game.
+         * For that purpose, I created two HashMAp based on the result Collection of the GameState class.
+         *
+         * moveMap: will store the entirety of the moves of the game with a first argument being the
+         * Round number of the game, and the second the result (containing a lot of things, please be sure to
+         * check the Result class) which will give us the winner, the winner type, the winning move and so on.
+         *
+         * mapUsedMove: will store the amount of times a move has been used by the Human player, this will gives
+         * us information on which move does the Human player tends to use the most.
+         *
+         * mapCounter: is a map used to store the natural counter to a move (for example, Rock against Scissor etc...)
+         *
+         * This section is bound to evolve as for now the only thing I do is responding in a random manner to
+         * a request to play by the system, I still haven't used the Maps I described before, (aside from the mapCounter
+         * to add another element of randomness to the random response)
+         * */
         HashMap<Integer,Pair<Result,Move>> moveMap = new HashMap<>();
         Pair<Result,Move> movePair;
         HashMap<Move,Integer> mapUsedMove = new HashMap<>();
@@ -81,33 +104,19 @@ public class Player implements IPlayer {
         }
         System.out.println("Move map: "+moveMap.size()+" result : "+results.size());
         List<Move> moveList = new ArrayList<>();
-        moveList.add(Move.Rock);
-        moveList.add(Move.Paper);
-        moveList.add(Move.Scissor);
-        moveList.add(Move.Rock);
-        moveList.add(Move.Paper);
-        moveList.add(Move.Scissor);
-        moveList.add(Move.Rock);
-        moveList.add(Move.Paper);
-        moveList.add(Move.Scissor);
-        moveList.add(Move.Rock);
-        moveList.add(Move.Paper);
-        moveList.add(Move.Scissor);
-        moveList.add(Move.Rock);
-        moveList.add(Move.Paper);
-        moveList.add(Move.Scissor);
-        moveList.add(Move.Rock);
-        moveList.add(Move.Paper);
-        moveList.add(Move.Scissor);
-        moveList.add(Move.Rock);
-        moveList.add(Move.Paper);
-        moveList.add(Move.Scissor);
+        for (int i = 0; i < 10; i++) {
+            moveList.add(Move.Rock);
+            moveList.add(Move.Paper);
+            moveList.add(Move.Scissor);
+        }
+
+
         Random random = new Random();
         int randNumber = random.nextInt(moveList.size());
-        System.out.println("Rand: "+randNumber);
+
         //Implement better AI here...
         Move movePlay = mapCounter.get(moveList.get(randNumber));
-        System.out.println("move: "+movePlay);
+
         return movePlay;
     }
 }
