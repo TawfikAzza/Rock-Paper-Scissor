@@ -70,16 +70,16 @@ public class Player implements IPlayer {
          * a request to play by the system, I still haven't used the Maps I described before, (aside from the mapCounter
          * to add another element of randomness to the random response)
          * */
-        HashMap<Integer,Pair<Result,Move>> moveMap = new HashMap<>();
+        /*HashMap<Integer,Pair<Result,Move>> moveMap = new HashMap<>();
         Pair<Result,Move> movePair;
-        HashMap<Move,Integer> mapUsedMove = new HashMap<>();
+        HashMap<Move,Integer> mapUsedMove = new HashMap<>();*/
         HashMap<Move,Move> mapCounter = new HashMap<>();
 
         mapCounter.put(Move.Rock,Move.Paper);
         mapCounter.put(Move.Paper,Move.Scissor);
         mapCounter.put(Move.Scissor,Move.Rock);
 
-        mapUsedMove.put(Move.Rock,0);
+      /*  mapUsedMove.put(Move.Rock,0);
         mapUsedMove.put(Move.Paper,0);
         mapUsedMove.put(Move.Scissor,0);
 
@@ -102,7 +102,7 @@ public class Player implements IPlayer {
             Move movePlayed = (Move) entry.getKey();
             System.out.println("Move: "+movePlayed+" occurences: "+numberOfMove);
         }
-        System.out.println("Move map: "+moveMap.size()+" result : "+results.size());
+        System.out.println("Move map: "+moveMap.size()+" result : "+results.size());*/
         List<Move> moveList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             moveList.add(Move.Rock);
