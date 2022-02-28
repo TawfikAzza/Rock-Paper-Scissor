@@ -114,7 +114,7 @@ public class GameViewController implements Initializable {
      * displaying the result of the game, the total of win/loss for the AI as well as the player.
      *
      * */
-    //TODO: Need more commenting...
+    //TODO: Needs more commenting...
     private void playGame() {
         ge.playRound(playerMove);
         Result result = null;
