@@ -55,7 +55,11 @@ public class GameViewController implements Initializable {
         topPane.getStylesheets().add(getClass().getResource("/css/game.css").toExternalForm());
         // TODO
     }
-
+    /**
+     * Something I stole from Søren's code, it give the AI a random name,
+     * I still don't use it in the program, but I thought it was a nice touch and maybe someone will be interested in
+     * implementing something from it.
+     * */
     private String getRandomBotName() {
         String[] botNames = new String[] {
                 "R2D2",
@@ -79,6 +83,14 @@ public class GameViewController implements Initializable {
                 statusText + result.getLoserPlayer().getPlayerName() +
                 " (" + result.getLoserMove() + ")!";
     }
+    /**
+     * This method retrieve the move by the player (through one of the buttons) and
+     * send the right image (Rock, Paper or Scissor) to the imageview on the bottom left-hand side
+     * representing the player's input,
+     * it then call the method playGame() which will be in charge of send the player's input to the doMove of the
+     * class Player.
+     *
+     * */
 
     public void playMove(ActionEvent actionEvent) {
         Button btnPressed = (Button) actionEvent.getSource();
@@ -96,7 +108,13 @@ public class GameViewController implements Initializable {
         }
         playGame();
     }
-
+    /**
+     * Play a round of the game, using the variable of the GameManager class ge.
+     * the method then retrieve the results of the game and assign the right image for the move the AI played as well as
+     * displaying the result of the game, the total of win/loss for the AI as well as the player.
+     *
+     * */
+    //TODO: Need more commenting...
     private void playGame() {
         ge.playRound(playerMove);
         Result result = null;
