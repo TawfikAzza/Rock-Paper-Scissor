@@ -1,12 +1,16 @@
 package rps.bll.player;
 
 //Project imports
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import javafx.util.Pair;
 import rps.bll.game.IGameState;
 import rps.bll.game.Move;
 import rps.bll.game.Result;
+import rps.dal.ConnectionManager;
 
 //Java imports
+import java.io.IOException;
+import java.sql.Connection;
 import java.util.*;
 
 /**
@@ -18,6 +22,11 @@ public class Player implements IPlayer {
 
     private String name;
     private PlayerType type;
+    private HashMap<String,Integer> mapTotalMoves = new HashMap<>();
+    HashMap<Move,String> moveToString = new HashMap<>();
+    HashMap<String,Move> stringToMove = new HashMap<>();
+    HashMap<Move,Move> mapCounter = new HashMap<>();
+
 
     /**
      * @param name
@@ -25,6 +34,19 @@ public class Player implements IPlayer {
     public Player(String name, PlayerType type) {
         this.name = name;
         this.type = type;
+        mapTotalMoves = getCombination();
+        moveToString.clear();
+        moveToString.put(Move.Rock,"R");
+        moveToString.put(Move.Paper,"P");
+        moveToString.put(Move.Scissor,"S");
+        stringToMove.clear();
+        stringToMove.put("R",Move.Rock);
+        stringToMove.put("P",Move.Paper);
+        stringToMove.put("S",Move.Scissor);
+        mapCounter.put(Move.Rock,Move.Paper);
+        mapCounter.put(Move.Paper,Move.Scissor);
+        mapCounter.put(Move.Scissor,Move.Rock);
+
     }
 
 
@@ -47,94 +69,84 @@ public class Player implements IPlayer {
      */
     @Override
     public Move doMove(IGameState state) {
-        /**
-         * In this Method, which I am still working on and putting everything in.
-         * meaning I didn't refactor a thing about it,so it can looks messy at first (and second) glance.
-         * I retrieve the datas I judge necessary for the AI to do its job.
-         * After some researchs, the top Rock Paper Scissor seems to all acknowledge the fact that
-         * Randomness is the deciding factor between win and loss in the game of Rock Paper Scissor.
-         * However, I think we can add a little thinking to the randomness, by adding into it a
-         * sort of pattern recognition in the moves the human player makes throughout the game.
-         * For that purpose, I created two HashMAp based on the result Collection of the GameState class.
-         *
-         * moveMap: will store the entirety of the moves of the game with a first argument being the
-         * Round number of the game, and the second the result (containing a lot of things, please be sure to
-         * check the Result class) which will give us the winner, the winner type, the winning move and so on.
-         *
-         * mapUsedMove: will store the amount of times a move has been used by the Human player, this will gives
-         * us information on which move does the Human player tends to use the most.
-         *
-         * mapCounter: is a map used to store the natural counter to a move (for example, Rock against Scissor etc...)
-         *
-         * This section is bound to evolve as for now the only thing I do is responding in a random manner to
-         * a request to play by the system, I still haven't used the Maps I described before, (aside from the mapCounter
-         * to add another element of randomness to the random response)
-         * */
-
-        HashMap<Integer,Pair<Result,Move>> moveMap = new HashMap<>();
-        HashMap<Pair<Move,Move>,Integer> mapPredictedMoveAfterWinning = new HashMap<>();
-        HashMap<Pair<Move,Move>,Integer> mapPredictedMoveAfterLosing = new HashMap<>();
-        Pair<Result,Move> movePair;
-        HashMap<Move,Integer> mapUsedMove = new HashMap<>();
-        HashMap<Move,Move> mapCounter = new HashMap<>();
-
-        mapCounter.put(Move.Rock,Move.Paper);
-        mapCounter.put(Move.Paper,Move.Scissor);
-        mapCounter.put(Move.Scissor,Move.Rock);
-
-        mapUsedMove.put(Move.Rock,0);
-        mapUsedMove.put(Move.Paper,0);
-        mapUsedMove.put(Move.Scissor,0);
-
-        mapPredictedMoveAfterWinning = fillMapPrediction();
-        mapPredictedMoveAfterLosing = fillMapPrediction();
-
-
-
-
         //Historic data to analyze and decide next move...
         ArrayList<Result> results = (ArrayList<Result>) state.getHistoricResults();
-        for (Result result: results) {
-            movePair = new Pair<>(result, result.getWinnerMove());
-            moveMap.put(result.getRoundNumber(),movePair);
-            if(result.getRoundNumber()>0 && results.get(result.getRoundNumber()-1).getLoserPlayer().getPlayerType()==PlayerType.Human) {
-                if (result.getWinnerPlayer().getPlayerType() == PlayerType.Human) {
-                    Pair<Move, Move> movePlayed = new Pair<>(results.get(result.getRoundNumber() - 1).getLoserMove(), result.getWinnerMove());
-                    mapPredictedMoveAfterLosing.put(movePlayed,mapPredictedMoveAfterLosing.get(movePlayed)+1);
-                }
-                if (result.getLoserPlayer().getPlayerType() == PlayerType.Human) {
-                    Pair<Move, Move> movePlayed = new Pair<>(results.get(result.getRoundNumber() - 1).getLoserMove(), result.getLoserMove());
-                    mapPredictedMoveAfterLosing.put(movePlayed,mapPredictedMoveAfterLosing.get(movePlayed)+1);
-                }
-            }
-            if(result.getRoundNumber()>0 && results.get(result.getRoundNumber()-1).getWinnerPlayer().getPlayerType()==PlayerType.Human) {
-                if (result.getWinnerPlayer().getPlayerType() == PlayerType.Human) {
-                    Pair<Move, Move> movePlayed = new Pair<>(results.get(result.getRoundNumber() - 1).getWinnerMove(), result.getWinnerMove());
-                    mapPredictedMoveAfterWinning.put(movePlayed,mapPredictedMoveAfterWinning.get(movePlayed)+1);
-                }
-                if (result.getLoserPlayer().getPlayerType() == PlayerType.Human) {
-                    Pair<Move, Move> movePlayed = new Pair<>(results.get(result.getRoundNumber() - 1).getWinnerMove(), result.getLoserMove());
-                    mapPredictedMoveAfterWinning.put(movePlayed,mapPredictedMoveAfterWinning.get(movePlayed)+1);
-                }
-            }
-        }
-       // chooseNextMove(state,moveMap);
 
-        for (Map.Entry entry:moveMap.entrySet()) {
-            Integer roundNumber = (Integer) entry.getKey();
-            Pair<Result,Move> movePairRound = (Pair<Result,Move>) entry.getValue();
-            if(movePairRound.getKey().getWinnerPlayer().getPlayerType()==PlayerType.Human)
-                mapUsedMove.put(movePairRound.getValue(),mapUsedMove.get(movePairRound.getValue())+1);
-        }
-        for (Map.Entry entry:mapUsedMove.entrySet()){
-            Integer numberOfMove = (Integer) entry.getValue();
-            Move movePlayed = (Move) entry.getKey();
-           // System.out.println("Move: "+movePlayed+" occurences: "+numberOfMove);
-        }
+        Result result = null;
+        Move movePlay=null;
+        if(results.size()>5){
+            result = results.get(results.size()-1);
+            addMovePlayed(result,results);
+            movePlay = mapCounter.get(searchNextMove(result,results));
 
-        getCombination();
-        Move movePlay = randomPlay(mapCounter);
+        }
+       if(movePlay==null)
+            movePlay = randomPlay();
         return movePlay;
+    }
+    private Move searchNextMove(Result result,ArrayList<Result> results) {
+        String strGameEntry =
+                getHumanMove(results.get(results.size()-4))
+                +"-"+getAIMove(results.get(results.size()-4))
+                +"_"+getHumanMove(results.get(results.size()-3))
+                +"-"+getAIMove(results.get(results.size()-3))
+                +"_"+getHumanMove(results.get(results.size()-2))
+                +"-"+getAIMove(results.get(results.size()-2));
+        //Problem alternating between the Rock and PAper, the AI always plays according to the
+        //last play record, the User play is stored but the counter is playing the
+        String[] nextMovePossibility = {"R","P","S"};
+        String nextMoveSearched =null;
+        int occurences=0;
+        for (int i = 0; i < nextMovePossibility.length; i++) {
+            if(mapTotalMoves.get(strGameEntry+"+"+nextMovePossibility[i])>0) {
+                if(occurences<mapTotalMoves.get(strGameEntry+"+"+nextMovePossibility[i])){
+                    nextMoveSearched = nextMovePossibility[i];
+                    occurences=mapTotalMoves.get(strGameEntry+"+"+nextMovePossibility[i]);
+                    System.out.println(strGameEntry+"+"+nextMovePossibility[i]+" occurences: "+occurences);
+                }
+            }
+        }
+        System.out.println("Occurences: "+occurences);
+        if(occurences==0) {
+            return randomPlay();
+        }
+        System.out.println("Move Played: "+mapCounter.get(stringToMove.get(nextMoveSearched)));
+        return stringToMove.get(nextMoveSearched);
+    }
+    private void addMovePlayed(Result result, ArrayList<Result> results){
+        if(result.getRoundNumber()>2) {
+            String strGameEntry =
+                    getHumanMove(results.get(results.size()-3))
+                    +"-"+getAIMove(results.get(results.size()-3))
+                    +"_"+getHumanMove(results.get(results.size()-2))
+                    +"-"+getAIMove(results.get(results.size()-2))
+                    +"_"+getHumanMove(results.get(results.size()-1))
+                    +"-"+getAIMove(results.get(results.size()-1))
+                    +"+"+getHumanMove(result);
+            //System.out.println("Move : "+strGameEntry);
+            mapTotalMoves.put(strGameEntry,mapTotalMoves.get(strGameEntry)+1);
+            //System.out.println("Move: "+strGameEntry+" entered "+" TotalMove in this category : "+mapTotalMoves.get(strGameEntry));
+        }
+    }
+    private String getHumanMove(Result result) {
+        String movePlayed=null;
+        if(result.getWinnerPlayer().getPlayerType()==PlayerType.Human) {
+            movePlayed = moveToString.get(result.getWinnerMove());
+        }
+        if(result.getLoserPlayer().getPlayerType()==PlayerType.Human) {
+            movePlayed = moveToString.get(result.getLoserMove());
+        }
+        return movePlayed;
+    }
+    private String getAIMove(Result result) {
+        String movePlayed=null;
+        if(result.getWinnerPlayer().getPlayerType()==PlayerType.AI) {
+            movePlayed = moveToString.get(result.getWinnerMove());
+        }
+        if(result.getLoserPlayer().getPlayerType()==PlayerType.AI) {
+            movePlayed = moveToString.get(result.getLoserMove());
+        }
+        return movePlayed;
     }
 
     private Move chooseNextMove(IGameState state, HashMap<Pair<Move,Move>,Integer> moveMap) {
@@ -154,7 +166,7 @@ public class Player implements IPlayer {
         }
         return Move.Paper;
     }
-    private Move randomPlay(HashMap<Move,Move> mapCounter) {
+    private Move randomPlay() {
         List<Move> moveList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             moveList.add(Move.Rock);
@@ -165,29 +177,48 @@ public class Player implements IPlayer {
         Random random = new Random();
         int randNumber = random.nextInt(moveList.size());
 
-        Move movePlay = mapCounter.get(moveList.get(randNumber));
-        return movePlay;
+        return moveList.get(randNumber);
     }
-    private String[] getCombination() {
+    private HashMap<String,Integer> getCombination() {
         String[] firstMove = {"R","P","S"};
         String[] secondMove = {"R","P","S"};
         String[] thirdMove = {"R","P","S"};
-        String[] totalMoves = new String[27];
+        String[] fourthMove = {"R","P","S"};
+        String[] fifthMove = {"R","P","S"};
+        String[] sixthMove = {"R","P","S"};
+        String[] finalMove = {"R","P","S"};
+        String[] totalMoves = new String[2187];
+
+        HashMap<String,Integer> mapTotalMove = new HashMap<>();
         int index = 0;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 for (int k = 0; k < 3; k++) {
-                    totalMoves[index] = firstMove[i]+"_"+secondMove[j]+"_"+thirdMove[k];
-                    index++;
+                    for (int l = 0; l < 3; l++) {
+                        for (int m = 0; m < 3; m++) {
+                            for (int n = 0; n < 3; n++) {
+                                for (int o = 0; o < 3; o++) {
+                                    totalMoves[index] = firstMove[i]+"-"+secondMove[j]+"_"
+                                                        +thirdMove[k]+"-"+fourthMove[l]+"_"
+                                                        +fifthMove[m]+"-"+sixthMove[n]+"+"+finalMove[o];
+                                    index++;
+                                }
+                            }
+
+                        }
+
+                    }
+
                 }
-
             }
+        }
 
-        }
         for (int i = 0; i < totalMoves.length; i++) {
-            System.out.println(totalMoves[i]);
+          //  System.out.println("index: "+i+" "+totalMoves[i]);
+            mapTotalMove.put(totalMoves[i],0);
         }
-        return null;
+        //System.out.println("Size: "+mapTotalMove.size());
+        return mapTotalMove;
     }
     private HashMap<Pair<Move,Move>,Integer> fillMapPrediction() {
         HashMap<Pair<Move,Move>,Integer> mapToFill = new HashMap<>();
