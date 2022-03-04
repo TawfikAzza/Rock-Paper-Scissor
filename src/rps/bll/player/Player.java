@@ -74,7 +74,7 @@ public class Player implements IPlayer {
 
         Result result = null;
         Move movePlay=null;
-        if(results.size()>5){
+        if(results.size()>8){
             result = results.get(results.size()-1);
             addMovePlayed(result,results);
             movePlay = mapCounter.get(searchNextMove(result,results));
@@ -86,12 +86,14 @@ public class Player implements IPlayer {
     }
     private Move searchNextMove(Result result,ArrayList<Result> results) {
         String strGameEntry =
-                getHumanMove(results.get(results.size()-4))
-                +"-"+getAIMove(results.get(results.size()-4))
+                getHumanMove(results.get(results.size()-9))
+                +"-"+getHumanMove(results.get(results.size()-8))
+                +"_"+getHumanMove(results.get(results.size()-7))
+                +"-"+getHumanMove(results.get(results.size()-6))
+                +"_"+getHumanMove(results.get(results.size()-5))
+                +"-"+getHumanMove(results.get(results.size()-4))
                 +"_"+getHumanMove(results.get(results.size()-3))
-                +"-"+getAIMove(results.get(results.size()-3))
-                +"_"+getHumanMove(results.get(results.size()-2))
-                +"-"+getAIMove(results.get(results.size()-2));
+                +"-"+getHumanMove(results.get(results.size()-2));
         //Problem alternating between the Rock and PAper, the AI always plays according to the
         //last play record, the User play is stored but the counter is playing the
         String[] nextMovePossibility = {"R","P","S"};
@@ -114,15 +116,18 @@ public class Player implements IPlayer {
         return stringToMove.get(nextMoveSearched);
     }
     private void addMovePlayed(Result result, ArrayList<Result> results){
-        if(result.getRoundNumber()>2) {
+        if(result.getRoundNumber()>8) {
             String strGameEntry =
-                    getHumanMove(results.get(results.size()-3))
-                    +"-"+getAIMove(results.get(results.size()-3))
+                    getHumanMove(results.get(results.size()-8))
+                    +"-"+getHumanMove(results.get(results.size()-7))
+                    +"_"+getHumanMove(results.get(results.size()-6))
+                    +"-"+getHumanMove(results.get(results.size()-5))
+                    +"_"+getHumanMove(results.get(results.size()-4))
+                    +"-"+getHumanMove(results.get(results.size()-3))
                     +"_"+getHumanMove(results.get(results.size()-2))
-                    +"-"+getAIMove(results.get(results.size()-2))
-                    +"_"+getHumanMove(results.get(results.size()-1))
-                    +"-"+getAIMove(results.get(results.size()-1))
+                    +"-"+getHumanMove(results.get(results.size()-1))
                     +"+"+getHumanMove(result);
+            System.out.println("results: "+getHumanMove(results.get(results.size()-1))+" Result: "+getHumanMove(result));
             //System.out.println("Move : "+strGameEntry);
             mapTotalMoves.put(strGameEntry,mapTotalMoves.get(strGameEntry)+1);
             //System.out.println("Move: "+strGameEntry+" entered "+" TotalMove in this category : "+mapTotalMoves.get(strGameEntry));
@@ -186,8 +191,10 @@ public class Player implements IPlayer {
         String[] fourthMove = {"R","P","S"};
         String[] fifthMove = {"R","P","S"};
         String[] sixthMove = {"R","P","S"};
+        String[] seventhMove = {"R","P","S"};
+        String[] eigthMove = {"R","P","S"};
         String[] finalMove = {"R","P","S"};
-        String[] totalMoves = new String[2187];
+        String[] totalMoves = new String[19683];
 
         HashMap<String,Integer> mapTotalMove = new HashMap<>();
         int index = 0;
@@ -198,10 +205,18 @@ public class Player implements IPlayer {
                         for (int m = 0; m < 3; m++) {
                             for (int n = 0; n < 3; n++) {
                                 for (int o = 0; o < 3; o++) {
-                                    totalMoves[index] = firstMove[i]+"-"+secondMove[j]+"_"
-                                                        +thirdMove[k]+"-"+fourthMove[l]+"_"
-                                                        +fifthMove[m]+"-"+sixthMove[n]+"+"+finalMove[o];
-                                    index++;
+                                    for (int p = 0; p < 3; p++) {
+                                        for (int q = 0; q < 3; q++) {
+                                            totalMoves[index] = firstMove[i]+"-"+secondMove[j]+"_"
+                                                    +thirdMove[k]+"-"+fourthMove[l]+"_"
+                                                    +fifthMove[m]+"-"+sixthMove[n]+"_"
+                                                    +seventhMove[o]+"-"+eigthMove[p]+"+"
+                                                    +finalMove[q];
+                                            index++;
+                                        }
+
+                                    }
+
                                 }
                             }
 
